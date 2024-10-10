@@ -1,0 +1,78 @@
+import { test, expect } from '@playwright/test';
+import { UsersPage } from './pages/Users';
+import { LoginPage } from './pages/Login';
+
+const usersData = [
+    {
+        email: 'example@mail.ru',
+        firstName: 'Vasya',
+        lastName: 'Vasilev',
+        password: 'Qwerty11',
+    },
+    {
+        email: 'anna.smirnova@gmail.com',
+        firstName: 'Anna',
+        lastName: 'Smirnova',
+        password: 'Password123',
+    },
+    {
+        email: 'petr.ivanov@yahoo.com',
+        firstName: 'Petr',
+        lastName: 'Ivanov',
+        password: 'Ivanov456!',
+    },
+    {
+        email: 'katya.sidorova@mail.ru',
+        firstName: 'Katya',
+        lastName: 'Sidorova',
+        password: 'Katya2021',
+    }
+];
+
+test.beforeEach(async ({ page }) => {
+    const auth = new LoginPage(page);
+    await auth.init();
+    await auth.login();
+    await UsersPage.goto(page);
+});
+
+test('users list', async ({ page }) => {
+    const users = new UsersPage(page);
+
+    await expect(users.createUserLink()).toBeVisible();
+    await expect(users.exportButton()).toBeVisible();
+
+    await users.columnsVisible();
+});
+
+test('create/edit user', async ({ page }) => {
+    const newUser = usersData[0];
+    const editableUser = usersData[1];
+
+    const users = new UsersPage(page);
+
+    await users.createUserLink().click();
+    const submitButton = users.getSubmitButton();
+    await expect(submitButton).toBeDisabled();
+
+    await users.fillNewUser(newUser.email, newUser.firstName, newUser.lastName, newUser.password);
+    
+    await expect(submitButton).not.toBeDisabled();
+    await submitButton.click();
+    
+    await expect(page.getByRole('alert')).toBeVisible();
+    await expect(submitButton).toBeDisabled();
+
+    await page.getByRole('menuitem', { name: 'Users' }).click();
+    await expect(page.getByRole('cell', { name: newUser.email })).toBeVisible();
+
+    await page.getByRole('cell', { name: newUser.email }).click();
+    await users.fillNewUser(editableUser.email, editableUser.firstName, editableUser.lastName, editableUser.password);
+    await submitButton.click();
+
+    await expect(page.getByRole('cell', { name: newUser.email })).not.toBeVisible();
+    await expect(page.getByRole('cell', { name: editableUser.email })).toBeVisible();
+    await expect(page.getByText('Element updated')).toBeVisible();
+//    await expect(page.getByRole('link', { name: 'SHOW' })).toBeVisible();
+//    await expect(page.getByRole('button', { name: 'DELETE' })).toBeVisible();
+});
