@@ -73,6 +73,38 @@ test('create/edit user', async ({ page }) => {
     await expect(page.getByRole('cell', { name: newUser.email })).not.toBeVisible();
     await expect(page.getByRole('cell', { name: editableUser.email })).toBeVisible();
     await expect(page.getByText('Element updated')).toBeVisible();
-//    await expect(page.getByRole('link', { name: 'SHOW' })).toBeVisible();
-//    await expect(page.getByRole('button', { name: 'DELETE' })).toBeVisible();
+});
+
+test('delete user', async ({ page }) => {
+    const newUser = usersData[0];
+    const users = new UsersPage(page);
+
+    const submitButton = users.getSubmitButton();
+
+    await users.createUserLink().click();
+    await users.fillNewUser(newUser.email, newUser.firstName, newUser.lastName, newUser.password);
+    await submitButton.click();
+
+    await expect(users.deleteButton()).toBeVisible();
+    await users.deleteButton().click();
+
+    await expect(page.getByRole('cell', { name: newUser.email })).not.toBeVisible();
+
+    const firstCell = await users.selectRowByIndex(1, 'john@google');
+    const twoCell = await users.selectRowByIndex(2, 'jack@yahoo.');
+
+    await firstCell.click();
+    await twoCell.click();
+
+    await expect(users.deleteButton()).toBeVisible();
+    await users.deleteButton().click();
+
+    await expect(firstCell).not.toBeVisible();
+    await expect(twoCell).not.toBeVisible();
+
+    await users.selectAllCheckbox().check();
+    await users.deleteButton().click();
+
+    await expect(users.noUserText()).toBeVisible();
+    await expect(users.createUserButton()).toBeVisible();
 });

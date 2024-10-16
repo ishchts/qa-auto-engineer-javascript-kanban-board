@@ -42,4 +42,24 @@ export class UsersPage {
         await this.fillNewUserBy('Last name', lastName);
         await this.fillNewUserBy('Password', password);
     }
+
+    deleteButton() {
+        return this.page.getByRole('button', { name: 'DELETE' });
+    }
+
+    selectRowByIndex(index, email) {
+        return this.page.getByRole('row', { name: `Select this row ${index} ${email}` }).getByRole('checkbox');
+    }
+
+    selectAllCheckbox() {
+        return this.page.getByLabel('Select all').getByRole('checkbox');
+    }
+
+    noUserText() {
+        return this.page.getByText('No User yet.Do you want to');
+    }
+
+    createUserButton() {
+        return this.page.getByRole('link', { name: 'Create' });
+    }
 }
