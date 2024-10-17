@@ -29,10 +29,15 @@ const usersData = [
     }
 ];
 
+const user = {
+    login: usersData[0].firstName,
+    password: usersData[0].firstName,
+}
+
 test.beforeEach(async ({ page }) => {
     const auth = new LoginPage(page);
     await auth.init();
-    await auth.login();
+    await auth.login(user);
     await UsersPage.goto(page);
 });
 

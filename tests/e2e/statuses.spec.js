@@ -2,6 +2,11 @@ import { test, expect } from "@playwright/test";
 import { LoginPage } from './pages/Login';
 import { StatusPage } from './pages/Status';
 
+const user = {
+    login: 'user',
+    password: 'user',
+}
+
 const statusesData = [
     { name: 'Новый', slug: 'new' },
     { name: 'В процессе', slug: 'in-progress' },
@@ -20,7 +25,7 @@ let statusPage;
 test.beforeEach(async ({ page }) => {
     const auth = new LoginPage(page);
     await auth.init();
-    await auth.login();
+    await auth.login(user);
 
     statusPage = new StatusPage(page);
     await statusPage.goto('task_statuses')
