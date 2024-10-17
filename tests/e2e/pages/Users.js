@@ -1,33 +1,18 @@
 import { expect } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class UsersPage {
-    static async goto(page) {
-        await page.goto('http://localhost:5173/#/users');
+export class UsersPage extends BasePage {
+    constructor(page) {
+        super(page);
+        this.page = page;
     }
 
-    constructor(page) {
-        this.page = page;
+    async goToUsersPage() {
+        await super.goto('users');
     }
 
     createUserLink() {
         return this.page.getByRole('link', { name: 'Create' });
-    }
-
-    exportButton() {
-        return this.page.getByRole('button', { name: 'Export' });
-    }
-    
-    async columnsVisible() {
-        await expect(this.page.getByRole('columnheader', { name: 'Select all' })).toBeVisible();
-        await expect(this.page.getByRole('columnheader', { name: 'id' })).toBeVisible();
-        await expect(this.page.getByRole('columnheader', { name: 'Email' })).toBeVisible();
-        await expect(this.page.getByRole('columnheader', { name: 'First name' })).toBeVisible();
-        await expect(this.page.getByRole('columnheader', { name: 'Last name' })).toBeVisible();
-        await expect(this.page.getByRole('columnheader', { name: 'Created at' })).toBeVisible();
-    }
-
-    getSubmitButton() {
-        return this.page.getByRole('button', { name: 'Save' });
     }
 
     async fillNewUserBy(name, value) {
@@ -43,23 +28,71 @@ export class UsersPage {
         await this.fillNewUserBy('Password', password);
     }
 
-    deleteButton() {
-        return this.page.getByRole('button', { name: 'DELETE' });
-    }
-
-    selectRowByIndex(index, email) {
-        return this.page.getByRole('row', { name: `Select this row ${index} ${email}` }).getByRole('checkbox');
-    }
-
-    selectAllCheckbox() {
-        return this.page.getByLabel('Select all').getByRole('checkbox');
-    }
-
     noUserText() {
         return this.page.getByText('No User yet.Do you want to');
     }
 
-    createUserButton() {
-        return this.page.getByRole('link', { name: 'Create' });
+    getUsersList() {
+        const elements = [
+            this.page.getByRole('columnheader', { name: 'Select all' }),
+            this.page.getByRole('columnheader', { name: 'id' }),
+            this.page.getByRole('columnheader', { name: 'Email' }),
+            this.page.getByRole('columnheader', { name: 'First name' }),
+            this.page.getByRole('columnheader', { name: 'Last name' }),
+            this.page.getByRole('columnheader', { name: 'Created at' }),
+            this.createUserLink(),
+            this.page.getByRole('button', { name: 'Export' })
+        ];
+
+        return elements;
+    }
+
+    async createUser(user) {
+        await this.createUserLink().click();
+
+        const saveButton = this.page.getByRole('button', { name: 'Save' });
+        
+        await expect(saveButton).toBeDisabled();
+        
+        await this.fillNewUser(
+            user.email,
+            user.firstName,
+            user.lastName,
+            user.password
+        );
+
+        await expect(saveButton).not.toBeDisabled();
+
+        await saveButton.click();
+
+        await expect(saveButton).toBeDisabled();
+        const textLocator = this.page.getByText('Element created');
+        await textLocator.waitFor();
+
+        await this.goToUsersPage();
+    }
+
+    async editUser(name, user) {
+        await this.page.getByRole('cell', { name }).click();
+
+        await this.fillNewUser(
+            user.email,
+            user.firstName,
+            user.lastName,
+            user.password
+        );
+
+        const saveButton = this.page.getByRole('button', { name: 'Save' });
+        await saveButton.click();
+    }
+
+    async deleteUser(email) {
+        await this.page.getByRole('cell', { name: email }).click();
+        await this.page.getByRole('button', { name: 'delete' }).click();
+    }
+
+    async deleteAllUser() {
+        await this.page.getByLabel('Select all').getByRole('checkbox').check();
+        await this.page.getByRole('button', { name: 'delete' }).click();
     }
 }
