@@ -2,11 +2,6 @@ import { test, expect } from "@playwright/test";
 import { LoginPage } from './pages/Login';
 import { StatusPage } from './pages/Status';
 
-const user = {
-    login: 'user',
-    password: 'user',
-}
-
 const statusesData = [
     { name: 'Новый', slug: 'new' },
     { name: 'В процессе', slug: 'in-progress' },
@@ -25,7 +20,7 @@ let statusPage;
 test.beforeEach(async ({ page }) => {
     const auth = new LoginPage(page);
     await auth.init();
-    await auth.login(user);
+    await auth.login();
 
     statusPage = new StatusPage(page);
     await statusPage.goto('task_statuses')
@@ -66,8 +61,11 @@ test('editing status information', async ({ page }) => {
 });
 
 test('deletion of statuses', async ({ page }) => {
-    await statusPage.deleteStatusByName('Draft');
-    await expect(page.locator('text="Draft"')).not.toBeVisible();
+    const newStatus = statusesData[0];
+
+    await statusPage.createStatus(newStatus.name, newStatus.slug);
+    await statusPage.deleteStatusByName(newStatus.name);
+    await expect(page.locator(`text="${newStatus.name}"`)).not.toBeVisible();
     await expect(page.locator('text="Element deleted"')).toBeVisible();
 });
 

@@ -1,6 +1,11 @@
 import { expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 
+const defaultUser = {
+    login: 'user',
+    password: 'user',
+}
+
 export class LoginPage extends BasePage {
     constructor(page) {
         super(page);
@@ -54,7 +59,7 @@ export class LoginPage extends BasePage {
         await button.click();
     }
 
-    async login(user) {
+    async login(user = defaultUser) {
         await this.usernameField.fill(user.login);
         await this.passwordField.fill(user.password);
         
