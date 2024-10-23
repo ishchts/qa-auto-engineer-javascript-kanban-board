@@ -5,6 +5,10 @@ export class StatusPage extends BasePage {
         super(page);
     }
 
+    async gotoStatusesPage() {
+        await this.goto('task_statuses');
+    }
+
     getStatusList() {
         const list = [
             this.page.getByRole('columnheader', { name: 'Sort by Name descending' }),

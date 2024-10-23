@@ -23,7 +23,7 @@ test.beforeEach(async ({ page }) => {
     await auth.login();
 
     statusPage = new StatusPage(page);
-    await statusPage.goto('task_statuses')
+    await statusPage.gotoStatusesPage();
 });
 
 test('status list view', async ({ page }) => {
