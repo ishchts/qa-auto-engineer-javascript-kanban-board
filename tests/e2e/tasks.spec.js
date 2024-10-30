@@ -93,7 +93,7 @@ test('task list view', async () => {
 });
 
 test('filtered by assignee', async ({ page }) => {
-    await expect(page.locator(`text=${task2.title}`)).toBeVisible();
+    await expect(await page.locator(`text=${task2.title}`)).toBeVisible();
     await taskPage.filteredByAssignee(newUser.email);
 
     await expect(page.locator(`text=${task2.title}`)).not.toBeVisible();
