@@ -1,10 +1,12 @@
 import 'dotenv/config';
 import path from 'path';
 
+const baseUrl = process.env.VITE_APP_BASE_URL || 'http://localhost:5173';
+
 export class BasePage {
     constructor(page) {
         this.page = page;
-        this.url = process.env.VITE_APP_BASE_URL;
+        this.url = baseUrl;
     }
 
     async goto(url) {
